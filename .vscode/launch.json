@@ -7,15 +7,15 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug executable 'rust-shapes'",
+            "name": "Debug executable 'geojson_to_shp'",
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=rust-shapes",
-                    "--package=rust-shapes"
+                    "--bin=geojson_to_shp",
+                    "--package=geojson_to_shp"
                 ],
                 "filter": {
-                    "name": "rust-shapes",
+                    "name": "geojson_to_shp",
                     "kind": "bin"
                 }
             },
@@ -25,16 +25,16 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug unit tests in executable 'rust-shapes'",
+            "name": "Debug unit tests in executable 'geojson_to_shp'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
-                    "--bin=rust-shapes",
-                    "--package=rust-shapes"
+                    "--bin=geojson_to_shp",
+                    "--package=geojson_to_shp"
                 ],
                 "filter": {
-                    "name": "rust-shapes",
+                    "name": "geojson_to_shp",
                     "kind": "bin"
                 }
             },
