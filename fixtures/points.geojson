@@ -1,0 +1,50 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    102.0,
+                    0.5
+                ]
+            },
+            "properties": {
+                "category": "high",
+                "giddy": "up",
+                "ranking": 1
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    102.0,
+                    0.0
+                ]
+            },
+            "properties": {
+                "category": "medium",
+                "giddy": "down",
+                "ranking": 2
+            }
+        },
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    100.0,
+                    0.0
+                ]
+            },
+            "properties": {
+                "category": "low",
+                "giddy": "left",
+                "ranking": 3
+            }
+        }
+    ]
+}
