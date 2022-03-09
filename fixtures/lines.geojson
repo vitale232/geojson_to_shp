@@ -1,0 +1,49 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {
+                "category": "low",
+                "giddy": "left",
+                "ranking": 3,
+                "more": 4
+            },
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                    [
+                        47.13026404380798,
+                        9.53280758153806
+                    ],
+                    [
+                        47.13080048561096,
+                        9.528776318322342
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "category": "medium",
+                "giddy": "down",
+                "ranking": 2,
+                "more": 3
+            },
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                    [
+                        46.13026404380798,
+                        9.53280758153806
+                    ],
+                    [
+                        45.5,
+                        9.528776318322342
+                    ]
+                ]
+            }
+        }
+    ]
+}
