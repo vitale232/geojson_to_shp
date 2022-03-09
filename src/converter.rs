@@ -73,29 +73,27 @@ impl FeatureCollectionToShpConverter {
                 Some(props) => props,
                 None => panic!("No properties!"),
             };
-            {
-                let mut record = shapefile::dbase::Record::default();
-                for (prop_name, value) in properties.into_iter() {
-                    match value {
-                        serde_json::Value::Number(val) => {
-                            record.insert(
-                                prop_name.to_string(),
-                                shapefile::dbase::FieldValue::Numeric(val.as_f64()),
-                            );
-                        }
-                        serde_json::Value::String(val) => {
-                            record.insert(
-                                prop_name.to_string(),
-                                shapefile::dbase::FieldValue::Character(Some(val.to_string())),
-                            );
-                        }
-                        _ => panic!("lazy"),
+            let mut record = shapefile::dbase::Record::default();
+            for (prop_name, value) in properties.into_iter() {
+                match value {
+                    serde_json::Value::Number(val) => {
+                        record.insert(
+                            prop_name.to_string(),
+                            shapefile::dbase::FieldValue::Numeric(val.as_f64()),
+                        );
                     }
+                    serde_json::Value::String(val) => {
+                        record.insert(
+                            prop_name.to_string(),
+                            shapefile::dbase::FieldValue::Character(Some(val.to_string())),
+                        );
+                    }
+                    _ => panic!("lazy"),
                 }
-                self.dbf_writer
-                    .write_record(&record)
-                    .expect("Could not write record!");
             }
+            self.dbf_writer
+                .write_record(&record)
+                .expect("Could not write record!");
         }
         Ok(())
     }
