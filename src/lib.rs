@@ -24,10 +24,10 @@ impl FeatureCollectionToShpWriter {
             _ => panic!("FeatureCollections only!"),
         };
 
-        let shp = File::create(format!("{}.shp", &filepath))?;
-        let shx = File::create(format!("{}.shx", &filepath))?;
-
-        let shape_writer = ShapeWriter::with_shx(shp, shx);
+        let shape_writer = ShapeWriter::with_shx(
+            File::create(format!("{}.shp", &filepath))?,
+            File::create(format!("{}.shx", &filepath))?,
+        );
         let dbf_writer = build_dbf_writer(filepath, &feature_collection)?;
 
         Ok(FeatureCollectionToShpWriter {
@@ -65,6 +65,7 @@ impl FeatureCollectionToShpWriter {
                 Some(props) => props,
                 None => panic!("No properties!"),
             };
+
             let mut record = shapefile::dbase::Record::default();
             for (prop_name, value) in properties.into_iter() {
                 match value {
@@ -95,12 +96,15 @@ fn build_dbf_writer(
     filepath: &str,
     feature_collection: &FeatureCollection,
 ) -> Result<TableWriter<File>, Box<dyn Error>> {
-    let mut writer = TableWriterBuilder::new();
     let feature = feature_collection.features[0].clone();
-    let properties = feature
-        .properties
-        .expect("No properties exist on the feature!");
+    let properties = match feature.properties {
+        Some(props) => props,
+        None => panic!(
+            "No properties in the first feature from the collection! Cannot build dbf writer."
+        ),
+    };
 
+    let mut writer = TableWriterBuilder::new();
     for (prop_name, value) in properties.iter() {
         match value {
             serde_json::Value::Number(_) => {
