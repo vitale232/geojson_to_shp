@@ -121,7 +121,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn creates_new_converter_and_converts_without_error() {
+    fn creates_new_writer_and_writes_without_error() {
         let contents = std::fs::read_to_string("./fixtures/points.geojson").unwrap();
         let mut writer = FeatureCollectionToShpWriter::new(contents, "./fixtures/test").unwrap();
         writer.write().expect("Shapes")
