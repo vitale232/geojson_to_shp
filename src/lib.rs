@@ -7,21 +7,21 @@ use shapefile::{
     ShapeWriter,
 };
 
-pub struct FeatureCollectionToShpConverter {
+pub struct FeatureCollectionToShpWriter {
     feature_collection: FeatureCollection,
     shape_writer: ShapeWriter<File>,
     dbf_writer: TableWriter<File>,
 }
 
-impl FeatureCollectionToShpConverter {
+impl FeatureCollectionToShpWriter {
     pub fn new(
         contents: String,
         filepath: &str,
-    ) -> Result<FeatureCollectionToShpConverter, Box<dyn Error>> {
+    ) -> Result<FeatureCollectionToShpWriter, Box<dyn Error>> {
         let geojson = contents.parse::<GeoJson>()?;
         let feature_collection = match geojson {
             GeoJson::FeatureCollection(collection) => collection,
-            _ => panic!("Collections only!"),
+            _ => panic!("FeatureCollections only!"),
         };
 
         let shp = File::create(format!("{}.shp", &filepath))?;
@@ -30,14 +30,14 @@ impl FeatureCollectionToShpConverter {
         let shape_writer = ShapeWriter::with_shx(shp, shx);
         let dbf_writer = build_dbf_writer(filepath, &feature_collection)?;
 
-        Ok(FeatureCollectionToShpConverter {
+        Ok(FeatureCollectionToShpWriter {
             feature_collection,
             shape_writer,
             dbf_writer,
         })
     }
 
-    pub fn write_shapefile(&mut self) -> Result<(), Box<dyn Error>> {
+    pub fn write(&mut self) -> Result<(), Box<dyn Error>> {
         for feature in self.feature_collection.features.iter() {
             let geometry = match &feature.geometry {
                 Some(g) => g,
@@ -59,14 +59,6 @@ impl FeatureCollectionToShpConverter {
                     self.shape_writer.write_shape(&geom)?;
                 }
                 _ => panic!("Unimplemented Geometry Type!"),
-                // Value::MultiPoint(mp) => println!("multi-point: {:?}", mp),
-                // Value::LineString(ls) => println!("ls: {:?}", ls),
-                // Value::MultiLineString(mls) => println!("mls: {:?}", mls),
-                // Value::Polygon(poly) => println!("poly: {:?}", poly),
-                // Value::MultiPolygon(multi_poly) => {
-                //     println!("multi_poly: {:?}", multi_poly)
-                // }
-                // Value::GeometryCollection(gc) => println!("gc: {:?}", gc),
             };
 
             let properties = match &feature.properties {
@@ -111,16 +103,13 @@ fn build_dbf_writer(
 
     for (prop_name, value) in properties.iter() {
         match value {
-            serde_json::Value::Array(_) => panic!("Arrays are not supported!"),
-            serde_json::Value::Object(_) => panic!("ob is not supported"),
-            serde_json::Value::Null => panic!("null is not supported"),
-            serde_json::Value::Bool(_) => panic!("bool is not supported"),
             serde_json::Value::Number(_) => {
                 writer = writer.add_numeric_field(FieldName::try_from(&prop_name[..])?, 22, 20)
             }
             serde_json::Value::String(_) => {
                 writer = writer.add_character_field(FieldName::try_from(&prop_name[..])?, 255);
-            }
+            },
+            _ => panic!("Property type not supported! Only Number and String values are currently supported.")
         }
     }
     let dest = File::create(format!("{}.dbf", filepath))?;
@@ -134,8 +123,7 @@ mod tests {
     #[test]
     fn creates_new_converter_and_converts_without_error() {
         let contents = std::fs::read_to_string("./fixtures/points.geojson").unwrap();
-        let mut converter =
-            FeatureCollectionToShpConverter::new(contents, "./fixtures/test").unwrap();
-        converter.write_shapefile().expect("Shapes")
+        let mut writer = FeatureCollectionToShpWriter::new(contents, "./fixtures/test").unwrap();
+        writer.write().expect("Shapes")
     }
 }
