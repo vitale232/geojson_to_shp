@@ -1,11 +1,46 @@
-use std::error::Error;
 use std::fs::File;
+use std::path::Path;
+use std::{error::Error, fs::read_to_string};
 
 use geojson::{FeatureCollection, GeoJson, Value};
 use shapefile::{
     dbase::{FieldName, TableWriter, TableWriterBuilder},
     ShapeWriter,
 };
+
+pub struct Cli {
+    geojson: String,
+    output_path: String,
+}
+
+impl Cli {
+    pub fn new(args: &[String]) -> Result<Cli, String> {
+        if args.len() < 3 {
+            return Err(
+                [
+                    "Not enough arguments! Requires 2 positional arguments.",
+                    "\nFor example:\n `./geojson_to_shp [path_to_file OR geojson_as_string] [output_file_path_no_extension]"
+                ].join(" ")
+            );
+        }
+
+        let geojson = args[1].clone();
+        let output_path = args[2].clone();
+
+        Ok(Cli {
+            geojson,
+            output_path,
+        })
+    }
+
+    pub fn to_writer(&mut self) -> Result<FeatureCollectionToShpWriter, Box<dyn Error>> {
+        let contents = match Path::new(&self.geojson).is_file() {
+            true => read_to_string(&self.geojson)?,
+            false => self.geojson.to_string(),
+        };
+        FeatureCollectionToShpWriter::new(contents, &self.output_path)
+    }
+}
 
 pub struct FeatureCollectionToShpWriter {
     feature_collection: FeatureCollection,
