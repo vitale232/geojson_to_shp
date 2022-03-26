@@ -45,10 +45,10 @@ impl Cli {
         })
     }
 
-    pub fn to_writer(&mut self) -> Result<FeatureCollectionToShpWriter, Box<dyn Error>> {
+    pub fn to_writer(self) -> Result<FeatureCollectionToShpWriter, Box<dyn Error>> {
         let contents = match Path::new(&self.geojson).is_file() {
             true => read_to_string(&self.geojson)?,
-            false => self.geojson.to_string(),
+            false => self.geojson,
         };
         FeatureCollectionToShpWriter::new(contents, &self.output_path)
     }

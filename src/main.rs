@@ -3,7 +3,7 @@ use std::{env, process};
 use geojson_to_shp::Cli;
 
 fn main() {
-    let mut cli = Cli::new(env::args()).unwrap_or_else(|err| {
+    let cli = Cli::new(env::args()).unwrap_or_else(|err| {
         eprintln!("A problem occurred while parsing the args: {}", err);
         process::exit(1);
     });
