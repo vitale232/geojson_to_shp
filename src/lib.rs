@@ -1,3 +1,4 @@
+use std::env::Args;
 use std::fs::File;
 use std::path::Path;
 use std::{error::Error, fs::read_to_string};
@@ -14,18 +15,29 @@ pub struct Cli {
 }
 
 impl Cli {
-    pub fn new(args: &[String]) -> Result<Cli, String> {
+    pub fn new(mut args: Args) -> Result<Cli, &'static str> {
         if args.len() < 3 {
             return Err(
-                [
-                    "Not enough arguments! Requires 2 positional arguments.",
-                    "\nFor example:\n `./geojson_to_shp [path_to_file OR geojson_as_string] [output_file_path_no_extension]"
-                ].join(" ")
+                "Not enough arguments! Requires 2 positional arguments For example:
+  ./geojson_to_shp [path_to_file OR geojson_as_string] [output_file_path_no_extension]",
             );
         }
 
-        let geojson = args[1].clone();
-        let output_path = args[2].clone();
+        // Ignore the first arg, which contains the binary name
+        args.next();
+
+        let geojson = match args.next() {
+            Some(arg) => arg,
+            None => return Err("Didn't get a GeoJSON string! Pass a file location or GeoJSON feature collection content."),
+        };
+
+        let output_path =
+            match args.next() {
+                Some(arg) => arg,
+                None => return Err(
+                    "Didn't get an output location! Pass an output location without an extension.",
+                ),
+            };
 
         Ok(Cli {
             geojson,
@@ -49,10 +61,7 @@ pub struct FeatureCollectionToShpWriter {
 }
 
 impl FeatureCollectionToShpWriter {
-    pub fn new(
-        contents: String,
-        filepath: &str,
-    ) -> Result<FeatureCollectionToShpWriter, Box<dyn Error>> {
+    pub fn new(contents: String, filepath: &str) -> Result<Self, Box<dyn Error>> {
         let geojson = contents.parse::<GeoJson>()?;
         let feature_collection = match geojson {
             GeoJson::FeatureCollection(collection) => collection,
@@ -65,7 +74,7 @@ impl FeatureCollectionToShpWriter {
         );
         let dbf_writer = build_dbf_writer(filepath, &feature_collection)?;
 
-        Ok(FeatureCollectionToShpWriter {
+        Ok(Self {
             feature_collection,
             shape_writer,
             dbf_writer,
